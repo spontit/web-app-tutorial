@@ -1,68 +1,128 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This tutorial Node.JS app can be accessed [here](https://spontit.info).
 
-## Available Scripts
+# Introduction
+This node web app is a [React](https://reactjs.org/) web app served by [Express](https://expressjs.com/). It is dockerized and then published on AWS Elastic Beanstalk.
 
-In the project directory, you can run:
+# Create React App and Serve on Express
+### Install dependencies
+First, create a react app named 'my-app' and go into the folder:
+`npx create-react-app my-app`
+`cd my-app`
+Then, install and save express:
+`npm install express --save`
+Once you have finished the above steps, you may run the React app in the development mode:
+`npm run start`
+### Serve React app
+Create 'server.js' file as following and save it in the project root folder:
+```
+const express = require('express');
+const bodyParser = require('body-parser')
+const path = require('path');
+const app = express();
+app.use(express.static(path.join(__dirname, 'build')));
 
-### `npm start`
+const PORT = process.env.PORT || 8080;
+const HOST = '0.0.0.0';
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+app.get('/hello', (req, res) => {
+  return res.send('Hello World!')
+});
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
-### `npm test`
+app.listen(PORT);
+console.log(`Running on http://${HOST}:${PORT}`);
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+In package.json file, add:
+ `"proxy": "http://localhost:8080"` 
+After finishing the above steps, you may run build on your React app:
+ `npm run build`
+and run Express to serve the React app:
+ `node server.js`
+ 
+ # Dockerize the app
+To use docker, sign up on [Docker](https://docker.com) and install Docker and/or Docker Desktop as needed.
+Once Docker installation is complete, create a file named 'Dockerfile' by running:
+`touch Dockerfile`
+### Edit Dockerfile
+In the Dockerfile, specify the image you want to build from. The latest image number for node.js app is available on the [Docker Hub](https://hub.docker.com/).
+`FROM node:14`
+Next, create the working directory of your app:
+`WORKDIR /usr/src/app`
+Then, copy your package.json and install the dependencies by adding the following lines:
+`COPY package*.json ./`
+`RUN npm install`
+To bundle the source code in your app, add:
+`COPY . .`
+Your app runs on port 8080, so add this line:
+`EXPOSE 8080`
+End by specify the command for starting your app:
+`CMD [ "node", "server.js" ]`
+The complete Dockerfile should look like this:
+```
+FROM node:14
 
-### `npm run build`
+WORKDIR /usr/src/app
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+COPY package*.json ./
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+RUN npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+COPY . .
 
-### `npm run eject`
+EXPOSE 8080
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+CMD [ "node", "server.js" ]
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Add .dockerignore file
+Create .dockerignore file and add the lines as following:
+`node_modules`
+`npm-debug.log`
+This will prevent local node modules and debug logs from being copied into the Docker image.
+Screenshot of .dockerignore:
+![screenshot-dockerignore](./public/screenshot-dockerignore.png)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Build, run, and push the docker image
+To build the docker image, run the following command:
+`docker build -t <your username>/<your app name> .`
+To run the built image on port 49160, run:
+`docker run -p 49160:8080 -d <your username>/<your app name>`
+The -p flag redirects a public port to a private port inside the container.
+To confirm that the image is running, run:
+`docker ps`
+In order to deploy a remote docker image to AWS Elastic Beanstalk, push the image to Docker Hub:
+`docker push <your username>/<your app name>:latest`
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+**Learn More**
+For reference, Node.JS has published a guide on how to dockerize a Node.JS app [here](https://nodejs.org/de/docs/guides/nodejs-docker-webapp/).
 
-## Learn More
+# Deploy Docker Container on AWS Elastic Beanstalk
+If you have not used AWS Elastic Beanstalk before, you may get started by reading the [documentations](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/GettingStarted.html).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Create Dockerrun.aws.json
+Create Dockerrun.aws.json file as following:
+```
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "your-docker-username/repo-name",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "8080"
+    }
+  ]
+}
+```
+This includes information on the remote docker image that Elastic Beanstalk should pull. We will then create a Elastic Beanstalk app and upload this file.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Set up Elastic Beanstalk app and deploy
 
-### Code Splitting
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+**Learn More**
+For reference, AWS has documentations on deploying docker container on AWS Elastic Beanstalk [here](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/single-container-docker.html).
