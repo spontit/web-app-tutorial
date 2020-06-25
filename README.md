@@ -85,7 +85,7 @@ Create .dockerignore file and add the lines as following:
 `npm-debug.log`
 This will prevent local node modules and debug logs from being copied into the Docker image.
 Screenshot of .dockerignore:
-![screenshot-dockerignore](./public/screenshot-dockerignore.png)
+![screenshot-dockerignore](./public/screenshot-dockerignore.png)<br>
 
 ### Build, run, and push the docker image
 To build the docker image, run the following command:<br>
@@ -125,19 +125,19 @@ This includes information on the remote docker image that Elastic Beanstalk shou
 ### Set up Elastic Beanstalk app and deploy
 To set up your app on Elastic Beanstalk, first, go to Elastic Beanstalk console -> Applications, and click on "Create a New Application".<br>
 Enter your application name: <br>
-![screenshot-ebcreateapp](./public/screenshot-ebcreateapp.png)
+![screenshot-ebcreateapp](./public/screenshot-ebcreateapp.png)<br>
 Click on "Create a New Environment" for the app you just created:<br>
-![screenshot-ebcreateenvironment](./public/screenshot-ebcreateenvironment.png)
+![screenshot-ebcreateenvironment](./public/screenshot-ebcreateenvironment.png)<br>
 Select 'Web server environment' for this app:<br>
-![screenshot-ebenvironment](./public/screenshot-ebenvironment.png)
+![screenshot-ebenvironment](./public/screenshot-ebenvironment.png)<br>
 For 'Platform', Choose 'Docker', and the platform branch and version as you like.<br>
 For 'Application code', choose 'Upload your code', and upload Dockerrun.aws.json you just created:<br>
-![screenshot-ebplatform](./public/screenshot-ebplatform.png)
-![screenshot-upload-dockerrun](./public/screenshot-upload-dockerrun.png)
+![screenshot-ebplatform](./public/screenshot-ebplatform.png)<br>
+![screenshot-upload-dockerrun](./public/screenshot-upload-dockerrun.png)<br>
 Navigate to 'Configure more options', and choose a preset configuration or create a configuration that contains a load balancer.<br>
-![screenshot-configuremore](./public/screenshot-configuremore.png)
+![screenshot-configuremore](./public/screenshot-configuremore.png)<br>
 The app will be created in a  moment and will be deployed at the elasticbeanstalk address:<br>
-![screenshot-ebcreated](./public/screenshot-ebcreated.png)
+![screenshot-ebcreated](./public/screenshot-ebcreated.png)<br>
 **Learn More**<br>
 For reference, AWS has [documentations](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/single-container-docker.html) on deploying docker container on AWS Elastic Beanstalk.
 <br>
@@ -147,28 +147,30 @@ You may purchase a domain address on any platform as you like. This example will
 First, choose a domain name you like and purchase it.<br>
 The domain address will show in your Google Domains account after purchase. Go to 'DNS' on the left menu, and scroll to 'Custom resource records'<br>
 Add a CNAME record, put in your elastic beanstalk app address as 'data' and 'www' as 'name':<br>
-![screenshot-cname](./public/screenshot-cname.png)
+![screenshot-cname](./public/screenshot-cname.png)<br>
 ### Add name servers
 We also need to add custom name servers on 'DNS' page. We will do this in "Name Servers" section.<br>
-![screenshot-nameserver](./public/screenshot-nameserver.png)
+![screenshot-nameserver](./public/screenshot-nameserver.png)<br>
 According to AWS, 'a hosted zone tells Route 53 how to respond to DNS queries for a domain'. Let's first create a hosted zone on AWS Route 53. <br>
 Navigate to Route 53 in AWS console, and then to 'Hosted zones'. <br>
 Click on 'Create Hosted Zone', and enter the domain address you just purchased:<br>
-![screenshot-createhostedzone](./public/screenshot-createhostedzone.png)
+![screenshot-createhostedzone](./public/screenshot-createhostedzone.png)<br>
 A hosted zone will be created: <br>
-![screenshot-hostedzonecreated](./public/screenshot-hostedzonecreated.png)
+![screenshot-hostedzonecreated](./public/screenshot-hostedzonecreated.png)<br>
 Copy the 'values' listed for type 'NS' one by one to 'custom name servers' in Google Domains:<br>
 ![screenshot-copynameserver](./public/screenshot-copynameserver.png)
 <br>
 **Notice** that changes made on Google Domains may take up to 48 hours to take effect.
 ### Set up HTTPS for your domain
 To set up HTTPS, we should get an SSL certificate on AWS and link it to the domain address.
-1. Go to AWS Certificate Manager to request an SSL certificate. Choose to 'request a public certificate', enter your domain name when prompted, select 'DNS validation' as validation method.<br>
-![screenshot-sslstep1](./public/screenshot-sslstep1.png)
-![screenshot-sslstep2](./public/screenshot-sslstep2.png)
+1. Go to AWS Certificate Manager to request an SSL certificate. Choose to 'request a public certificate', enter your domain name when prompted, select 'DNS validation' as validation method. Then follow <br>
+![screenshot-sslstep1](./public/screenshot-sslstep1.png)<br>
+![screenshot-sslstep2](./public/screenshot-sslstep2.png)<br>
+Follow instructions and add CNAME record in Google Domains:<br>
+![screenshot-sslvalidation](./public/screenshot-sslvalidation.png)<br>
 2. Link to Elastic Beanstalk.<br>
 Go to your Elastic Beanstalk app, navigate to Configuration -> Load Balancer.<br>
-![screenshot-loadbalancer](./public/screenshot-loadbalancer.png)
+![screenshot-loadbalancer](./public/screenshot-loadbalancer.png)<br>
 Edit the configuration of listeners for your load balancer. Choose 'HTTPS' and choose the SSL certificate you just received:<br>
 ![screenshot-loadbalancerlistener](./public/screenshot-loadbalancerlistener.png)
 
